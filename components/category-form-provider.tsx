@@ -5,7 +5,9 @@ import CategoryForm from './category-form';
 
 interface CategoryFormContextType {
   openCategoryForm: (type?: 'income' | 'expense') => void;
+  openCategoryFormForEdit: (category: string, type: 'income' | 'expense') => void;
   closeCategoryForm: () => void;
+  editingCategory: { name: string; type: 'income' | 'expense' } | null;
 }
 
 const CategoryFormContext = createContext<CategoryFormContextType | undefined>(undefined);
@@ -29,18 +31,25 @@ export function CategoryFormProvider({ children }: { children: React.ReactNode }
     setIsFormOpen(true);
   };
 
+  const openCategoryFormForEdit = (name: string, type: 'income' | 'expense') => {
+    setCategoryType(type);
+    setEditingCategory({ name, type });
+    setIsFormOpen(true);
+  };
+
   const closeCategoryForm = () => {
     setIsFormOpen(false);
     setEditingCategory(null);
   };
 
   return (
-    <CategoryFormContext.Provider value={{ openCategoryForm, closeCategoryForm }}>
+    <CategoryFormContext.Provider value={{ openCategoryForm, openCategoryFormForEdit, closeCategoryForm, editingCategory }}>
       {children}
       <CategoryForm 
         isOpen={isFormOpen} 
         onClose={closeCategoryForm}
         defaultType={categoryType}
+        category={editingCategory}
       />
     </CategoryFormContext.Provider>
   );

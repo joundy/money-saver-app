@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AddCategoryButtonProps {
   onAddCategory: () => void;
@@ -16,15 +17,17 @@ export default function AddCategoryButton({
   size = 'default',
   className = ''
 }: AddCategoryButtonProps) {
+  const isMobile = useIsMobile();
   return (
     <Button 
       variant={variant} 
       size={size} 
-      className={`flex items-center gap-2 ${className}`}
+      className={`flex items-center gap-2 ${className} ${isMobile ? 'rounded-full' : ''}`}
       onClick={onAddCategory}
     >
-      <PlusCircle className="h-4 w-4" />
-      <span>Add Category</span>
+      <PlusCircle className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
+      {!isMobile && <span>Add Category</span>}
+      {isMobile && <span className="sr-only">Add Category</span>}
     </Button>
   );
 }

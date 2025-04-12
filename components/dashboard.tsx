@@ -5,17 +5,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import DailySummary from './daily-summary';
-import { ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Wallet, Calendar, History } from 'lucide-react';
 import AddTransactionButton from './transaction-buttons';
 import { useTransactionForm } from './transaction-form-provider';
 import { Button } from './ui/button';
+import { formatCurrency } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Dashboard() {
+  const isMobile = useIsMobile();
   const { 
     accounts, 
     transactions,
     getTotalBalance,
-    getTransactionsByDateRange
+    getTransactionsByDateRange,
+    settings
   } = useMoneySaver();
   
   const { openTransactionForm } = useTransactionForm();
@@ -85,22 +89,22 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-4">
+        <h2 className="text-xl sm:text-2xl font-bold">Dashboard</h2>
         <AddTransactionButton 
           onAddTransaction={openTransactionForm}
           variant="outline"
           size="sm"
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${getTotalBalance().toFixed(2)}</div>
+            <div className="text-xl sm:text-2xl font-bold">{formatCurrency(getTotalBalance(), settings.currency)}</div>
             <p className="text-xs text-muted-foreground">
               Across {accounts.length} accounts
             </p>
@@ -112,19 +116,19 @@ export default function Dashboard() {
             <ArrowUpRight className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">+${monthTotals.income.toFixed(2)}</div>
+            <div className="text-xl sm:text-2xl font-bold text-green-500">+{formatCurrency(monthTotals.income, settings.currency)}</div>
             <p className="text-xs text-muted-foreground">
               {format(startOfMonth(today), 'MMM d')} - {format(endOfMonth(today), 'MMM d, yyyy')}
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="sm:col-span-2 md:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Month</CardTitle>
             <ArrowDownRight className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">-${monthTotals.expense.toFixed(2)}</div>
+            <div className="text-xl sm:text-2xl font-bold text-red-500">-{formatCurrency(monthTotals.expense, settings.currency)}</div>
             <p className="text-xs text-muted-foreground">
               {format(startOfMonth(today), 'MMM d')} - {format(endOfMonth(today), 'MMM d, yyyy')}
             </p>
@@ -133,9 +137,17 @@ export default function Dashboard() {
       </div>
 
       <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="daily">Daily Summary</TabsTrigger>
-          <TabsTrigger value="recent">Recent Days</TabsTrigger>
+        <TabsList className="w-full">
+          <TabsTrigger value="daily" className="w-1/2 flex items-center justify-center gap-1">
+            <Calendar className="h-4 w-4" />
+            {!isMobile && <span>Daily Summary</span>}
+            {isMobile && <span className="ml-1 text-xs">Daily</span>}
+          </TabsTrigger>
+          <TabsTrigger value="recent" className="w-1/2 flex items-center justify-center gap-1">
+            <History className="h-4 w-4" />
+            {!isMobile && <span>Recent Days</span>}
+            {isMobile && <span className="ml-1 text-xs">Recent</span>}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="daily" className="space-y-4">
           <DailySummary />
@@ -155,15 +167,17 @@ export default function Dashboard() {
                 <div className="space-y-6">
                   {recentDays.map(day => (
                     <div key={day.date} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium">
-                          {format(new Date(day.date), 'EEEE, MMMM d, yyyy')}
+                      <div className={`${isMobile ? 'flex flex-col' : 'flex justify-between'} items-start sm:items-center gap-1 sm:gap-0`}>
+                        <h3 className="font-medium text-sm sm:text-base">
+                          {isMobile 
+                            ? format(new Date(day.date), 'EEE, MMM d, yyyy')
+                            : format(new Date(day.date), 'EEEE, MMMM d, yyyy')}
                         </h3>
-                        <div className="text-sm">
-                          <span className="text-green-500 mr-2">+${day.totals.income.toFixed(2)}</span>
-                          <span className="text-red-500 mr-2">-${day.totals.expense.toFixed(2)}</span>
+                        <div className="text-xs sm:text-sm flex flex-wrap gap-2 sm:gap-0">
+                          <span className="text-green-500 mr-0 sm:mr-2">+{formatCurrency(day.totals.income, settings.currency)}</span>
+                          <span className="text-red-500 mr-0 sm:mr-2">-{formatCurrency(day.totals.expense, settings.currency)}</span>
                           <span className={day.totals.net >= 0 ? 'text-green-500' : 'text-red-500'}>
-                            Net: ${day.totals.net.toFixed(2)}
+                            Net: {formatCurrency(day.totals.net, settings.currency)}
                           </span>
                         </div>
                       </div>
@@ -181,7 +195,7 @@ export default function Dashboard() {
                                   : ''
                             }`}>
                               {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}
-                              ${transaction.amount.toFixed(2)}
+                              {formatCurrency(transaction.amount, settings.currency)}
                             </span>
                           </div>
                         ))}

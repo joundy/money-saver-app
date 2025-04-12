@@ -14,7 +14,7 @@ export default function CategoryManager() {
     updateSettings
   } = useMoneySaver();
   
-  const { openCategoryForm } = useCategoryForm();
+  const { openCategoryForm, openCategoryFormForEdit } = useCategoryForm();
   
   // Get categories and defaults from settings
   const incomeCategories = settings.incomeCategories || ['Salary', 'Other Income'];
@@ -108,7 +108,7 @@ export default function CategoryManager() {
                       variant="ghost" 
                       size="sm"
                       className="h-8 w-8 p-0"
-                      onClick={() => openCategoryForm('income')}
+                      onClick={() => openCategoryFormForEdit(category, 'income')}
                     >
                       <Pencil className="h-4 w-4" />
                       <span className="sr-only">Edit</span>
@@ -161,7 +161,7 @@ export default function CategoryManager() {
                       variant="ghost" 
                       size="sm"
                       className="h-8 w-8 p-0"
-                      onClick={() => openCategoryForm('expense')}
+                      onClick={() => openCategoryFormForEdit(category, 'expense')}
                     >
                       <Pencil className="h-4 w-4" />
                       <span className="sr-only">Edit</span>

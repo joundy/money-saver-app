@@ -10,13 +10,15 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AddTransactionButton from './transaction-buttons';
 import { useTransactionForm } from './transaction-form-provider';
+import { formatCurrency } from '@/lib/utils';
 
 export default function TransactionsManager() {
   const { 
     transactions, 
     accounts,
     deleteTransaction,
-    getAccountById
+    getAccountById,
+    settings
   } = useMoneySaver();
   
   const { openTransactionForm } = useTransactionForm();
@@ -155,8 +157,8 @@ export default function TransactionsManager() {
             </h3>
             {filter === 'all' && (
               <div className="text-sm">
-                <span className="text-green-500 mr-2">+${incomeTotal.toFixed(2)}</span>
-                <span className="text-red-500">-${expenseTotal.toFixed(2)}</span>
+                <span className="text-green-500 mr-2">+{formatCurrency(incomeTotal, settings.currency)}</span>
+                <span className="text-red-500">-{formatCurrency(expenseTotal, settings.currency)}</span>
               </div>
             )}
           </div>
@@ -191,7 +193,7 @@ export default function TransactionsManager() {
                           : ''
                     }`}>
                       {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}
-                      ${transaction.amount.toFixed(2)}
+                      {formatCurrency(transaction.amount, settings.currency)}
                     </p>
                     {transaction.type !== 'transfer' && (
                       <Badge variant="outline" className="text-xs">

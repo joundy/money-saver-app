@@ -5,6 +5,7 @@ import { useMoneySaver } from '@/hooks/use-money-saver';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Pencil, Trash2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,8 @@ export default function AccountTypesManager() {
     updateSettings,
     accounts
   } = useMoneySaver();
+  
+  const isMobile = useIsMobile();
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingType, setEditingType] = useState<{
@@ -110,11 +113,12 @@ export default function AccountTypesManager() {
         <Button 
           variant="outline" 
           size="sm" 
-          className="flex items-center gap-1"
+          className={`flex items-center gap-1 ${isMobile ? 'rounded-full' : ''}`}
           onClick={handleAddAccountType}
         >
-          <PlusCircle className="h-4 w-4" />
-          <span>Add Type</span>
+          <PlusCircle className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
+          {!isMobile && <span>Add Type</span>}
+          {isMobile && <span className="sr-only">Add Type</span>}
         </Button>
       </CardHeader>
       <CardContent>
@@ -127,20 +131,22 @@ export default function AccountTypesManager() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="flex items-center gap-1"
+                    className={`flex items-center gap-1 ${isMobile ? 'p-2' : ''}`}
                     onClick={() => handleEditAccountType(type, index)}
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    <span>Edit</span>
+                    {!isMobile && <span>Edit</span>}
+                    {isMobile && <span className="sr-only">Edit</span>}
                   </Button>
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    className="flex items-center gap-1"
+                    className={`flex items-center gap-1 ${isMobile ? 'p-2' : ''}`}
                     onClick={() => handleDeleteAccountType(type, index)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    <span>Delete</span>
+                    {!isMobile && <span>Delete</span>}
+                    {isMobile && <span className="sr-only">Delete</span>}
                   </Button>
                 </div>
               </div>

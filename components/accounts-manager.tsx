@@ -5,7 +5,9 @@ import { useMoneySaver } from '@/hooks/use-money-saver';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Pencil, Trash2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Account } from '@/lib/storage';
+import { formatCurrency } from '@/lib/utils';
 import AccountForm from './account-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AccountTypesManager from './account-types-manager';
@@ -14,8 +16,11 @@ export default function AccountsManager() {
   const { 
     accounts, 
     getTotalBalance,
-    deleteAccount
+    deleteAccount,
+    settings
   } = useMoneySaver();
+  
+  const isMobile = useIsMobile();
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
@@ -63,16 +68,17 @@ export default function AccountsManager() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex items-center gap-1"
+                className={`flex items-center gap-1 ${isMobile ? 'rounded-full' : ''}`}
                 onClick={handleAddAccount}
               >
-                <PlusCircle className="h-4 w-4" />
-                <span>Add Account</span>
+                <PlusCircle className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'}`} />
+                {!isMobile && <span>Add Account</span>}
+                {isMobile && <span className="sr-only">Add Account</span>}
               </Button>
             </CardHeader>
             <CardContent>
               <div className="mb-4 p-4 bg-muted/50 rounded-lg">
-                <p className="text-lg font-semibold">Total Balance: ${getTotalBalance().toFixed(2)}</p>
+                <p className="text-lg font-semibold">Total Balance: {formatCurrency(getTotalBalance(), settings.currency)}</p>
               </div>
               
               <div className="space-y-3">
@@ -84,27 +90,29 @@ export default function AccountsManager() {
                         <p className="text-sm text-muted-foreground capitalize">{account.type}</p>
                       </div>
                       <p className={`text-xl font-semibold ${account.balance < 0 ? 'text-red-500' : ''}`}>
-                        ${account.balance.toFixed(2)}
+                        {formatCurrency(account.balance, settings.currency)}
                       </p>
                     </div>
                     <div className="flex gap-2 mt-3 justify-end">
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="flex items-center gap-1"
+                        className={`flex items-center gap-1 ${isMobile ? 'p-2' : ''}`}
                         onClick={() => handleEditAccount(account)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
-                        <span>Edit</span>
+                        {!isMobile && <span>Edit</span>}
+                        {isMobile && <span className="sr-only">Edit</span>}
                       </Button>
                       <Button 
                         variant="destructive" 
                         size="sm"
-                        className="flex items-center gap-1"
+                        className={`flex items-center gap-1 ${isMobile ? 'p-2' : ''}`}
                         onClick={() => handleDeleteAccount(account.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span>Delete</span>
+                        {!isMobile && <span>Delete</span>}
+                        {isMobile && <span className="sr-only">Delete</span>}
                       </Button>
                     </div>
                   </div>

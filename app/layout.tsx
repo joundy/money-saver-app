@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Money Saver',
   description: 'A simple app to track your finances',
   generator: 'Next.js',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 }
 
 export default function RootLayout({
